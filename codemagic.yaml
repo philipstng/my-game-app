@@ -1,0 +1,29 @@
+workflows:
+  android-play-store:
+    name: Build & Publish Android AAB
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      groups:
+        - google_play_credentials # Created in Codemagic dashboard
+      vars:
+        PACKAGE_NAME: "com.yourname.yourapp" # Match your App ID
+    scripts:
+      - name: Install dependencies & Build Web Assets
+        script: |
+          npm install
+          npm run build
+      - name: Sync Capacitor Android Project
+        script: |
+          npx cap add android || true
+          npx cap copy android
+      - name: Build Android Signed Release Bundle (.aab)
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal # Options: internal, alpha, beta, production
