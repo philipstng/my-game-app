@@ -1,4 +1,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden; /* no page scroll */
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #0f172a;
@@ -6,34 +12,148 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh; /* dynamic viewport height accounts for mobile browser chrome */
+  padding: 8px;
 }
+
 .casino-table {
   background: radial-gradient(circle, #15803d 0%, #166534 70%, #052e16 100%);
-  border: 12px solid #78350f;
-  border-radius: 20px;
-  width: 90%;
+  border: clamp(4px, 1.5vw, 12px) solid #78350f;
+  border-radius: 16px;
+  width: 100%;
   max-width: 800px;
-  padding: 20px;
+  height: 100%;
+  max-height: 100%;
+  padding: clamp(8px, 2.5vw, 20px);
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: clamp(4px, 1.4vh, 20px);
+  overflow: hidden;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid rgba(255,255,255,0.2);
-  padding-bottom: 10px;
+  padding-bottom: clamp(4px, 1vh, 10px);
+  flex-shrink: 0;
 }
-.bankroll-display { font-size: 1.2rem; font-weight: bold; color: #fef08a; }
-.area-label { font-size: 1rem; font-weight: bold; margin-bottom: 8px; }
+h1 { font-size: clamp(1.05rem, 5vw, 1.8rem); letter-spacing: 1px; }
+.bankroll-display { font-size: clamp(0.8rem, 3vw, 1.2rem); font-weight: bold; color: #fef08a; white-space: nowrap; }
+
+.dealer-area, .player-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.area-label {
+  font-size: clamp(0.7rem, 2.5vw, 1rem);
+  font-weight: bold;
+  margin-bottom: clamp(2px, 0.8vh, 8px);
+  flex-shrink: 0;
+}
 .score { background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; }
-.cards { display: flex; gap: 10px; min-height: 110px; }
+
+.cards {
+  display: flex;
+  gap: clamp(4px, 1.5vw, 10px);
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 .card {
-  width: 75px;
-  height: 105px;
+  width: clamp(40px, 12vw, 75px);
+  height: clamp(58px, 17vw, 105px);
+  flex-shrink: 0;
+  background: white;
+  color: black;
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: clamp(0.65rem, 2.5vw, 1rem);
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+}
+.card.red { color: #dc2626; }
+.card.back {
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  border: 2px solid white;
+}
+
+.table-center {
+  text-align: center;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.8vh, 8px);
+}
+.message { font-size: clamp(0.85rem, 3.2vw, 1.3rem); font-weight: bold; color: #fef08a; min-height: 1.3em; }
+.pot { font-size: clamp(0.75rem, 2.8vw, 1rem); }
+
+.info-row {
+  display: flex;
+  gap: clamp(6px, 2vw, 16px);
+  justify-content: center;
+}
+.info-box {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: clamp(3px, 1vh, 8px) clamp(8px, 2vw, 16px);
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 200px;
+}
+.info-label {
+  font-size: clamp(0.55rem, 2vw, 0.7rem);
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+.info-value { font-size: clamp(0.9rem, 3.5vw, 1.3rem); font-weight: bold; color: #4ade80; }
+.info-sub { font-size: clamp(0.55rem, 2vw, 0.7rem); color: #cbd5e1; margin-top: 2px; }
+
+.controls { display: flex; justify-content: center; flex-shrink: 0; }
+.betting-controls, .action-controls {
+  display: flex;
+  gap: clamp(5px, 1.5vw, 10px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hidden { display: none !important; }
+
+.chip {
+  width: clamp(36px, 11vw, 50px);
+  height: clamp(36px, 11vw, 50px);
+  border-radius: 50%;
+  border: 3px dashed white;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  font-size: clamp(0.6rem, 2.2vw, 0.9rem);
+  cursor: pointer;
+}
+.btn {
+  padding: clamp(6px, 1.4vh, 10px) clamp(10px, 3vw, 20px);
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: clamp(0.7rem, 2.5vw, 1rem);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-primary { background: #eab308; color: black; }
+.btn-action { background: #22c55e; color: white; }
+.btn-secondary { background: #64748b; color: white; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
   background: white;
   color: black;
   border-radius: 6px;
