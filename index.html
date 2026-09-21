@@ -1,40 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Blackjack Casino</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enhanced Blackjack Casino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        felt: '#0a5c36',
+                        'felt-dark': '#053d23',
+                        gold: '#d4af37',
+                        'gold-light': '#f3e5ab',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        body {
+            background-color: #0d1117;
+            color: #f0f6fc;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .felt-table {
+            background: radial-gradient(circle, #0e6b40 0%, #063d23 85%, #021f11 100%);
+            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7), 0 20px 50px rgba(0,0,0,0.8);
+            border: 12px solid #2d1800;
+        }
+
+        .card {
+            width: 60px;
+            height: 88px;
+            perspective: 1000px;
+            transition: transform 0.4s ease-out, opacity 0.3s ease;
+            position: relative;
+        }
+
+        @media (min-width: 640px) {
+            .card {
+                width: 80px;
+                height: 116px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .card {
+                width: 96px;
+                height: 140px;
+            }
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background-color: #ffffff;
+            color: #111;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+        }
+
+        @media (min-width: 640px) {
+            .card-front {
+                padding: 6px;
+            }
+        }
+
+        .card-back {
+            background: repeating-linear-gradient(
+                45deg,
+                #b91c1c,
+                #b91c1c 10px,
+                #991b1b 10px,
+                #991b1b 20px
+            );
+            border: 2px solid #ffffff;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-back::after {
+            content: '♠♥♦♣';
+            color: rgba(255,255,255,0.25);
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        @media (min-width: 640px) {
+            .card-back::after {
+                font-size: 18px;
+            }
+        }
+
+        @keyframes dealIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0.5) rotate(-15deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+        }
+
+        .deal-animation {
+            animation: dealIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .chip {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3px dashed #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 0 8px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+        }
+
+        @media (min-width: 640px) {
+            .chip {
+                width: 52px;
+                height: 52px;
+                font-size: 13px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .chip {
+                width: 64px;
+                height: 64px;
+                font-size: 15px;
+            }
+        }
+
+        .chip:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.3);
+        }
+
+        .chip:active {
+            transform: translateY(0) scale(0.96);
+        }
+
+        .chip-5 { background: radial-gradient(circle, #ef4444 60%, #991b1b 100%); color: white; }
+        .chip-25 { background: radial-gradient(circle, #22c55e 60%, #15803d 100%); color: white; }
+        .chip-100 { background: radial-gradient(circle, #3b82f6 60%, #1d4ed8 100%); color: white; }
+        .chip-500 { background: radial-gradient(circle, #a855f7 60%, #6b21a8 100%); color: white; }
+
+        .recommendation-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 8px 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 8px 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (min-width: 768px) {
+            .recommendation-box, .stats-box {
+                padding: 12px 16px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Mobile portrait layout adjustments */
+        @media (max-width: 640px) and (orientation: portrait) {
+            .mobile-portrait {
+                flex-direction: column;
+            }
+            .mobile-portrait .felt-table {
+                min-height: 400px;
+            }
+            .mobile-portrait #dealerCards,
+            .mobile-portrait #playerCards {
+                min-height: 80px;
+            }
+        }
+    </style>
 </head>
-<body>
-  <div class="casino-table">
-    <div class="header">
-      <h1>BLACKJACK</h1>
-      <div class="bankroll-display">Bankroll: $<span id="bankroll">1000</span></div>
-    </div>
+<body class="min-h-screen flex flex-col justify-between items-center p-1 sm:p-2 md:p-4 mobile-portrait">
 
-    <div class="dealer-area">
-      <div class="area-label">DEALER <span id="dealer-score" class="score"></span></div>
-      <div class="cards" id="dealer-cards"></div>
-    </div>
-
-    <div class="table-center">
-      <div class="message" id="message">Place your bet to deal!</div>
-      <div class="pot">Current Bet: $<span id="current-bet">0</span></div>
-      <div class="info-row">
-        <div class="info-box">
-          <div class="info-label">WIN RATE</div>
-          <div class="info-value" id="win-rate">0.0%</div>
-          <div class="info-sub"><span id="wins-count">0</span>W-<span id="losses-count">0</span>L-<span id="pushes-count">0</span>P</div>
+    <!-- Top Header -->
+    <header class="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center bg-slate-900 border border-slate-800 rounded-xl p-2 sm:p-3 mb-2 sm:mb-3 gap-2 shadow-lg">
+        <div class="flex items-center space-x-2">
+            <span class="text-xl sm:text-2xl">🎰</span>
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-wide text-amber-400">Blackjack 21</h1>
         </div>
-        <div class="info-box">
-          <div class="info-label">RECOMMENDATION</div>
-          <div class="info-value" id="recommendation-value">—</div>
+        
+        <div class="flex flex-wrap items-center gap-1 sm:gap-2">
+            <span class="text-xs text-slate-400 font-semibold mr-1">Export:</span>
+            <button onclick="downloadFile('index.html')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2 py-1.5 rounded border border-slate-700 font-medium transition">
+                📥 HTML
+            </button>
+            <button onclick="downloadFile('style.css')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2 py-1.5 rounded border border-slate-700 font-medium transition">
+                📥 CSS
+            </button>
+            <button onclick="downloadFile('script.js')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2 py-1.5 rounded border border-slate-700 font-medium transition">
+                📥 JS
+            </button>
+            <button onclick="toggleSound()" id="soundToggleBtn" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs px-2 py-1.5 rounded border border-slate-700 font-medium transition">
+                🔊 ON
+            </button>
         </div>
-      </div>
-    </div>
+    </header>
 
-    <div class="player-area">
+    <!-- Main Felt Table -->
+    <main class="w-full max-w-5xl felt-table rounded-2xl sm:rounded-3xl p-2 sm:p-4 md:p-8 flex flex-col justify-between min-h-[420px] sm:min-h-[560px] relative overflow-hidden flex-1 mb-2 sm:mb-3">
+        
+        <!-- Table Rules Overlay Text -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center opacity-10 pointer-events-none select-none">
+            <h2 class="text-2xl sm:text-4xl md:text-6xl font-black text-white tracking-widest text-center">BLACKJACK PAYS 2 TO 1</h2>
+            <p class="text-lg sm:text-xl md:text-2xl font-bold text-white mt-1 md:mt-2">Dealer stands on 17</p>
+        </div>
+
+        <!-- Dealer Section -->
+        <div class="relative z-10 flex flex-col items-center">
+            <div class="flex items-center space-x-2 mb-1 sm:mb-2">
+                <span class="text-xs sm:text-sm font-bold tracking-wider text-emerald-200 uppercase">Dealer</span>
+                <span id="dealerScore" class="bg-black/50 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">0</span>
+            </div>
+            <div id="dealerCards" class="flex justify-center items-center -space-x-3 sm:-space-x-4 md:-space-x-6 min-h-[90px] sm:min-h-[120px] md:min-h-[144px]">
+                <!-- Cards render dynamically -->
+            </div>
+        </div>
+
+        <!-- Game State Banner Message -->
+        <div id="gameMessageContainer" class="relative z-20 my-1 sm:my-2 text-center transition-all duration-300 min-h-[36px] sm:min-h-[48px] flex items-center justify-center">
+            <div id="gameMessage" class="hidden text-base sm:text-lg md:text-2xl font-black px-4 sm:px-6 py-1.5 sm:py-2 rounded-full shadow-2xl backdrop-blur-md border transform transition scale-95">
+                <!-- Status text -->
+            </div>
+        </div>
+
+        <!-- Player Section -->
+        <div class="relative z-10 flex flex-col items-center">
+            <div id="playerCards" class="flex justify-center items-center -space-x-3 sm:-space-x-4 md:-space-x-6 min-h-[90px] sm:min-h-[120px] md:min-h-[144px] mb-1 sm:mb-2">
+                <!-- Cards render dynamically -->
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs sm:text-sm font-bold tracking-wider text-emerald-200 uppercase">Your Hand</span>
+                <span id="playerScore" class="bg-black/50 text-amber-300 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">0</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Dashboard -->
+    <footer class="w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-xl sm:rounded-2xl p-2 sm:p-4 shadow-xl">
+        <div class="grid grid-cols-1 gap-2 sm:gap-3">
+            
+            <!-- Recommendation Section -->
+            <div class="flex flex-col sm:flex-row gap-2">
+                <div class="recommendation-box flex-1">
+                    <div class="text-xs text-slate-400 font-medium mb-1">RECOMMENDATION</div>
+                    <div id="recommendationText" class="text-sm sm:text-base font-bold text-amber-400 text-center">
+                        Place your bet
+                    </div>
+                </div>
+                <div class="recommendation-box flex-1">
+                    <div class="text-xs text-slate-400 font-medium mb-1">RATIONALE</div>
+                    <div id="rationaleText" class="text-xs sm:text-sm text-slate-200 text-center">
+                        Wait for dealer's upcard
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-box">
+                <div class="text-xs text-slate-400 font-medium mb-1">WIN RATE</div>
+                <div id="winRateDisplay" class="text-base sm:text-lg font-bold text-emerald-400 text-center">
+                    0.00% (0-0-0)
+                </div>
+            </div>
+
+            <!-- Bankroll & Bet Info -->
+            <div class="flex justify-around items-center space-x-2 sm:space-x-4 bg-slate-950/60 p-2 sm:p-3 rounded-xl border border-slate-800/80">
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">BANKROLL</div>
+                    <div id="balanceDisplay" class="text-lg sm:text-xl font-black text-emerald-400">$1,000</div>
+                </div>
+                <div class="h-6 w-px bg-slate-800"></div>
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">CURRENT BET</div>
+                    <div id="betDisplay" class="text-lg sm:text-xl font-black text-amber-400">$0</div>
+                </div>
+            </div>
+
+            <!-- Chips Selector (Betting Phase) -->
+            <div id="bettingControls" class="flex justify-center items-center space-x-1.5 sm:space-x-2">
+                <button onclick="addBet(5)" class="chip chip-5">$5</button>
+                <button onclick="addBet(25)" class="chip chip-25">$25</button>
+                <button onclick="addBet(100)" class="chip chip-100">$100</button>
+                <button onclick="addBet(500)" class="chip chip-500">$500</button>
+                <button onclick="clearBet()" class="bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-xs font-bold px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-rose-700/50 transition ml-1 sm:ml-2">
+                    CLEAR
+                </button>
+            </div>
+
+            <!-- Action Buttons (Playing Phase) -->
+            <div id="actionControls" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 hidden">
+                <button id="btnHit" onclick="hit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95 border border-emerald-400/30">
+                    HIT
+                </button>
+                <button id="btnStand" onclick="stand()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95 border border-amber-400/30">
+                    STAND
+                </button>
+                <button id="btnDouble" onclick="doubleDown()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95 border border-purple-400/30">
+                    DOUBLE
+                </button>
+                <button id="btnSurrender" onclick="surrender()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-2.5 rounded-xl shadow-lg transition active:scale-95 border border-slate-500/30">
+                    SURRENDER
+                </button>
+            </div>
+
+            <!-- Primary Deal / New Round Button -->
+            <div id="dealControl" class="flex justify-center">
+                <button id="btnDeal" onclick="startDeal()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl shadow-lg transition active:scale-95 border border-amber-300">
+                    DEAL HAND
+                </button>
+            </div>
+
+            <!-- Simulate Button -->
+            <div class="flex justify-center">
+                <button id="btnSimulate" onclick="simulateGames()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl shadow-lg transition active:scale-95 border border-indigo-400/30">
+                    SIMULATE 100 GAMES
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- SOUND SYNTHESIS ENGINE (Web Audio API) ---
+        let soundEnabled = true;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'chip') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'card') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'lose') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(120, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggleBtn').innerText = soundEnabled ? '🔊 ON' : '🔇 OFF';
+        }
+
+        // --- GAME STATE VARIABLES ---
+        const suits = [
+            { name: 'hearts', symbol: '♥', color: 'text-red-600' },
+            { name: 'diamonds', symbol: '♦', color: 'text-red-600' },
+            { name: 'clubs', symbol: '♣', color: 'text-slate-900' },
+            { name: 'spades', symbol: '♠', color: 'text-slate-900' }
+        ];
+
+        const values = [
+            { code: '2', val: 2 }, { code: '3', val: 3 }, { code: '4', val: 4 },
+            { code: '5', val: 5 }, { code: '6', val: 6 }, { code: '7', val: 7 },
+            { code: '8', val: 8 }, { code: '9', val: 9 }, { code: '10', val: 10 },
+            { code: 'J', val: 10 }, { code: 'Q', val: 10 }, { code: 'K', val: 10 },
+            { code: 'A', val: 11 }
+        ];
+
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let balance = 1000;
+        let currentBet = 0;
+        let gameState = 'BETTING'; // 'BETTING', 'PLAYING', 'RESOLVED'
+        
+        // Win/loss tracking
+        let wins = 0;
+        let losse    <div class="player-area">
       <div class="area-label">PLAYER <span id="player-score" class="score"></span></div>
       <div class="cards" id="player-cards"></div>
     </div>
