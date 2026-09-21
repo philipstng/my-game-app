@@ -4,37 +4,93 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Blackjack</title>
-    <style>
-        :root {
-            --bg-color: #0a5c36;
-            --card-color: #ffffff;
-            --text-light: #ffffff;
-            --text-dark: #000000;
-            --felt-color: #1a8e4d;
-            --chip-gold: #d4af37;
-            --chip-silver: #a8a9ad;
-            --chip-red: #c83c3c;
-            --chip-blue: #2e86c1;
-            --chip-green: #27ae60;
-            --chip-black: #2c3e50;
-            --button-bg: #d4af37;
-            --button-hover: #b8941f;
-            --button-disabled: #6c757d;
-            --border-radius: 12px;
-        }
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="balance-section">
+                <div class="balance-label">Balance</div>
+                <div class="balance-value" id="balance">$1000</div>
+            </div>
+            <div class="controls-section">
+                <div class="wager-controls">
+                    <button class="chip chip-5" data-value="5">5</button>
+                    <button class="chip chip-10" data-value="10">10</button>
+                    <button class="chip chip-25" data-value="25">25</button>
+                    <button class="chip chip-50" data-value="50">50</button>
+                    <button class="chip chip-100" data-value="100">100</button>
+                    <button class="chip chip-500" data-value="500">500</button>
+                    <button id="clear-wager" disabled>Clear</button>
+                    <span class="wager-amount" id="wager-amount">$0</span>
+                    <button id="deal-btn" disabled>Deal</button>
+                </div>
+            </div>
+        </div>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            touch-action: manipulation;
-        }
+        <div class="game-area">
+            <div class="player-area">
+                <div class="player-label">Dealer</div>
+                <div class="hand" id="dealer-hand"></div>
+                <div class="game-info" id="dealer-sum">Sum: ?</div>
+            </div>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-light);
-            min-height: 100vh;
+            <div class="player-area">
+                <div class="player-label">Player</div>
+                <div class="hand" id="player-hand"></div>
+                <div class="game-info" id="player-sum">Sum: 0</div>
+            </div>
+
+            <div class="actions" id="actions">
+                <button class="action-btn" id="hit-btn" disabled>Hit</button>
+                <button class="action-btn" id="stand-btn" disabled>Stand</button>
+                <button class="action-btn" id="double-btn" disabled>Double Down</button>
+                <button class="action-btn" id="split-btn" disabled>Split</button>
+            </div>
+
+            <div class="simulate-section">
+                <button class="simulate-btn" id="simulate-btn">Simulate 100 Games</button>
+            </div>
+        </div>
+
+        <div class="recommendation-container">
+            <div class="recommendation-box">
+                <div class="recommendation-label">Recommendation</div>
+                <div class="recommendation-value" id="recommendation">-</div>
+            </div>
+            <div class="rationale-box">
+                <div class="rationale-label">Rationale</div>
+                <div class="rationale-text" id="rationale">Place your bet and click Deal</div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-value" id="win-rate">0.00%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Games Played</div>
+                <div class="stat-value" id="games-played">0</div>
+            </div>
+        </div>
+
+        <div class="result-message" id="result-message">
+            <div id="result-text"></div>
+            <div class="result-amount" id="result-amount"></div>
+        </div>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <div class="loading-text" id="loading-text">Simulating...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>            min-height: 100vh;
             overflow: hidden;
             padding: 0;
         }
