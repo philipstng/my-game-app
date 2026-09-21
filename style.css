@@ -1,366 +1,497 @@
-/* Blackjack Custom Styles */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-
-.felt-table {
-    background: radial-gradient(circle, #0e6b40 0%, #063d23 85%, #021f11 100%);
-    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7), 0 20px 50px rgba(0,0,0,0.8);
-    border: 12px solid #2d1800;
+:root {
+    --bg-color: #0a5c36;
+    --card-color: #ffffff;
+    --text-light: #ffffff;
+    --text-dark: #000000;
+    --felt-color: #1a8e4d;
+    --chip-gold: #d4af37;
+    --chip-silver: #a8a9ad;
+    --chip-red: #c83c3c;
+    --chip-blue: #2e86c1;
+    --chip-green: #27ae60;
+    --chip-black: #2c3e50;
+    --button-bg: #d4af37;
+    --button-hover: #b8941f;
+    --button-disabled: #6c757d;
+    --border-radius: 12px;
 }
 
-.card {
-    width: 60px;
-    height: 88px;
-    perspective: 1000px;
-    transition: transform 0.4s ease-out, opacity 0.3s ease;
-    position: relative;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    touch-action: manipulation;
 }
 
-@media (min-width: 640px) {
-    .card {
-        width: 80px;
-        height: 116px;
-    }
-}
-
-@media (min-width: 768px) {
-    .card {
-        width: 96px;
-        height: 140px;
-    }
-}
-
-.card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transform-style: preserve-3d;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    border-radius: 8px;
-}
-
-.card.flipped .card-inner {
-    transform: rotateY(180deg);
-}
-
-.card-front, .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 8px;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-light);
+    min-height: 100vh;
     overflow: hidden;
+    padding: 0;
 }
 
-.card-front {
-    background-color: #ffffff;
-    color: #111;
-    border: 1px solid #ccc;
+.container {
+    max-width: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    background: linear-gradient(180deg, #0a5c36 0%, #084c2e 100%);
+}
+
+/* Header with balance and controls */
+.header {
+    width: 100%;
+    display: flex;
     justify-content: space-between;
-    padding: 4px;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-@media (min-width: 640px) {
-    .card-front {
-        padding: 6px;
-    }
+.balance-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.card-back {
+.balance-label {
+    font-size: 10px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.balance-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+.controls-section {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wager-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.chip {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--text-light);
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.5);
+    user-select: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.chip:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+}
+
+.chip:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.chip-5 { background: var(--chip-gold); color: var(--text-dark); }
+.chip-10 { background: var(--chip-silver); }
+.chip-25 { background: var(--chip-red); }
+.chip-50 { background: var(--chip-blue); }
+.chip-100 { background: var(--chip-green); }
+.chip-500 { background: var(--chip-black); }
+
+.wager-amount {
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+    background: rgba(0,0,0,0.4);
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: var(--border-radius);
+    background: var(--button-bg);
+    color: var(--text-dark);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+button:hover:not(:disabled) {
+    background: var(--button-hover);
+}
+
+button:disabled {
+    background: var(--button-disabled);
+    cursor: not-allowed;
+    color: #999;
+}
+
+/* Game area */
+.game-area {
+    width: 100%;
+    max-width: 600px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 12px;
+    position: relative;
+}
+
+/* Dealer and Player areas */
+.player-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+}
+
+.player-label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hand {
+    display: flex;
+    gap: -40px;
+    margin-left: 40px;
+    height: 120px;
+    transition: all 0.3s;
+}
+
+.card {
+    width: 80px;
+    height: 112px;
+    background: var(--card-color);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+    user-select: none;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.card-face-down {
+    background: linear-gradient(145deg, #1a8e4d, #0a5c36);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-face-down::before {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: repeating-linear-gradient(
         45deg,
-        #b91c1c,
-        #b91c1c 10px,
-        #991b1b 10px,
-        #991b1b 20px
+        transparent,
+        transparent 2px,
+        rgba(212, 175, 55, 0.3) 2px,
+        rgba(212, 175, 55, 0.3) 4px
     );
-    border: 2px solid #ffffff;
-    transform: rotateY(180deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 8px;
 }
 
-.card-back::after {
-    content: '♠♥♦♣';
-    color: rgba(255,255,255,0.25);
+.suit-icon {
+    position: absolute;
     font-size: 14px;
-    letter-spacing: 2px;
 }
 
-@media (min-width: 640px) {
-    .card-back::after {
-        font-size: 18px;
-    }
+.corner-top-left { top: 4px; left: 4px; }
+.corner-top-right { top: 4px; right: 4px; transform: rotate(180deg); }
+.corner-bottom-left { bottom: 4px; left: 4px; transform: rotate(180deg); }
+.corner-bottom-right { bottom: 4px; right: 4px; }
+
+.card-value {
+    position: absolute;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-dark);
 }
 
-@keyframes dealIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-120px) scale(0.5) rotate(-15deg);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1) rotate(0deg);
-    }
+.card-value.top-left { top: 4px; left: 4px; }
+.card-value.top-right { top: 4px; right: 4px; }
+.card-value.bottom-left { bottom: 4px; left: 4px; }
+.card-value.bottom-right { bottom: 4px; right: 4px; }
+
+.card-red { color: #c83c3c; }
+.card-black { color: var(--text-dark); }
+
+.card-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
 }
 
-.deal-animation {
-    animation: dealIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-.chip {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 3px dashed #ffffff;
+/* Action buttons */
+.actions {
     display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.action-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 4px;
+    font-size: 14px;
+}
+
+/* Game state info */
+.game-info {
+    font-size: 14px;
+    color: #d4af37;
+    margin: 8px 0;
+    height: 20px;
+    text-align: center;
+}
+
+/* Recommendation boxes */
+.recommendation-container {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 180px;
+}
+
+.recommendation-box {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid var(--chip-gold);
+    border-radius: var(--border-radius);
+    padding: 8px;
+    text-align: center;
+}
+
+.recommendation-label {
+    font-size: 10px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.recommendation-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+.rationale-box {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: var(--border-radius);
+    padding: 8px;
+    text-align: center;
+}
+
+.rationale-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.rationale-text {
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.3;
+}
+
+/* Stats box */
+.stats-container {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-box {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: var(--border-radius);
+    padding: 8px;
+    text-align: center;
+    min-width: 140px;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: #d4af37;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+/* Result message */
+.result-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.9);
+    color: var(--text-light);
+    padding: 20px 30px;
+    border-radius: var(--border-radius);
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000;
+    display: none;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 0 8px rgba(0,0,0,0.3);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    flex-direction: column;
+    gap: 10px;
 }
 
-@media (min-width: 640px) {
-    .chip {
-        width: 52px;
-        height: 52px;
-        font-size: 13px;
-    }
+.result-message.show {
+    display: flex;
+    animation: fadeIn 0.3s;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.result-win { color: var(--chip-green); }
+.result-lose { color: var(--chip-red); }
+.result-push { color: var(--chip-gold); }
+.result-amount { font-size: 14px; opacity: 0.8; }
+
+/* Simulate button */
+.simulate-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.simulate-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    background: linear-gradient(145deg, #2e86c1, #1a5276);
+}
+
+.simulate-btn:hover:not(:disabled) {
+    background: linear-gradient(145deg, #3498db, #2980b9);
+}
+
+/* Responsive adjustments */
 @media (min-width: 768px) {
-    .chip {
-        width: 64px;
-        height: 64px;
-        font-size: 15px;
+    .container { padding: 16px 0; }
+    .header { padding: 10px 20px; }
+    .balance-value { font-size: 24px; }
+    .card { width: 90px; height: 126px; }
+    .hand { height: 140px; }
+    .recommendation-container { width: 200px; }
+    .stat-box { min-width: 160px; }
+    .action-btn { padding: 12px 8px; font-size: 16px; }
+}
+
+@media (max-height: 600px) {
+    .recommendation-container {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        margin-top: 8px;
+    }
+    .recommendation-box, .rationale-box, .stat-box { width: 100%; }
+    .stats-container {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 8px;
     }
 }
 
-.chip:hover {
-    transform: translateY(-4px) scale(1.08);
-    box-shadow: 0 8px 12px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.3);
+/* Loading overlay for simulation */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
 }
 
-.chip:active {
-    transform: translateY(0) scale(0.96);
+.loading-overlay.show {
+    display: flex;
 }
 
-.chip-5 {
-    background: radial-gradient(circle, #ef4444 60%, #991b1b 100%);
-    color: white;
-}
-.chip-25 {
-    background: radial-gradient(circle, #22c55e 60%, #15803d 100%);
-    color: white;
-}
-.chip-100 {
-    background: radial-gradient(circle, #3b82f6 60%, #1d4ed8 100%);
-    color: white;
-}
-.chip-500 {
-    background: radial-gradient(circle, #a855f7 60%, #6b21a8 100%);
-    color: white;
+.loading-content { text-align: center; }
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(212, 175, 55, 0.3);
+    border-top-color: var(--chip-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
 }
 
-.recommendation-box, .stats-box {
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid #374151;
-    border-radius: 12px;
-    padding: 8px 12px;
-    backdrop-filter: blur(10px);
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-@media (min-width: 768px) {
-    .recommendation-box, .stats-box {
-        padding: 12px 16px;
-    }
-}
-
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #0f172a;
-}
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
-}
-
-@media (max-width: 640px) and (orientation: portrait) {
-    .mobile-portrait {
-        flex-direction: column;
-    }
-    .mobile-portrait .felt-table {
-        min-height: 400px;
-    }
-}  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid rgba(255,255,255,0.2);
-  padding-bottom: clamp(4px, 1vh, 10px);
-  flex-shrink: 0;
-}
-h1 { font-size: clamp(1.05rem, 5vw, 1.8rem); letter-spacing: 1px; }
-.bankroll-display { font-size: clamp(0.8rem, 3vw, 1.2rem); font-weight: bold; color: #fef08a; white-space: nowrap; }
-
-.dealer-area, .player-area {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-.area-label {
-  font-size: clamp(0.7rem, 2.5vw, 1rem);
-  font-weight: bold;
-  margin-bottom: clamp(2px, 0.8vh, 8px);
-  flex-shrink: 0;
-}
-.score { background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; }
-
-.cards {
-  display: flex;
-  gap: clamp(4px, 1.5vw, 10px);
-  align-items: center;
-  flex: 1;
-  min-height: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-.card {
-  width: clamp(40px, 12vw, 75px);
-  height: clamp(58px, 17vw, 105px);
-  flex-shrink: 0;
-  background: white;
-  color: black;
-  border-radius: 6px;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: clamp(0.65rem, 2.5vw, 1rem);
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-}
-.card.red { color: #dc2626; }
-.card.back {
-  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-  border: 2px solid white;
-}
-
-.table-center {
-  text-align: center;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(3px, 0.8vh, 8px);
-}
-.message { font-size: clamp(0.85rem, 3.2vw, 1.3rem); font-weight: bold; color: #fef08a; min-height: 1.3em; }
-.pot { font-size: clamp(0.75rem, 2.8vw, 1rem); }
-
-.info-row {
-  display: flex;
-  gap: clamp(6px, 2vw, 16px);
-  justify-content: center;
-}
-.info-box {
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  padding: clamp(3px, 1vh, 8px) clamp(8px, 2vw, 16px);
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 200px;
-}
-.info-label {
-  font-size: clamp(0.55rem, 2vw, 0.7rem);
-  letter-spacing: 0.5px;
-  color: #94a3b8;
-  margin-bottom: 2px;
-}
-.info-value { font-size: clamp(0.9rem, 3.5vw, 1.3rem); font-weight: bold; color: #4ade80; }
-.info-sub { font-size: clamp(0.55rem, 2vw, 0.7rem); color: #cbd5e1; margin-top: 2px; }
-
-.controls { display: flex; justify-content: center; flex-shrink: 0; }
-.betting-controls, .action-controls {
-  display: flex;
-  gap: clamp(5px, 1.5vw, 10px);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.hidden { display: none !important; }
-
-.chip {
-  width: clamp(36px, 11vw, 50px);
-  height: clamp(36px, 11vw, 50px);
-  border-radius: 50%;
-  border: 3px dashed white;
-  background: #2563eb;
-  color: white;
-  font-weight: bold;
-  font-size: clamp(0.6rem, 2.2vw, 0.9rem);
-  cursor: pointer;
-}
-.btn {
-  padding: clamp(6px, 1.4vh, 10px) clamp(10px, 3vw, 20px);
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: clamp(0.7rem, 2.5vw, 1rem);
-  cursor: pointer;
-  white-space: nowrap;
-}
-.btn-primary { background: #eab308; color: black; }
-.btn-action { background: #22c55e; color: white; }
-.btn-secondary { background: #64748b; color: white; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  background: white;
-  color: black;
-  border-radius: 6px;
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-weight: bold;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
-}
-.card.red { color: #dc2626; }
-.card.back {
-  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-  border: 2px solid white;
-}
-.table-center { text-align: center; }
-.message { font-size: 1.3rem; font-weight: bold; color: #fef08a; min-height: 30px; }
-.controls { display: flex; justify-content: center; margin-top: 10px; }
-.betting-controls, .action-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.hidden { display: none !important; }
-.chip {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px dashed white;
-  background: #2563eb;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.btn-primary { background: #eab308; color: black; }
-.btn-action { background: #22c55e; color: white; }
-.btn-secondary { background: #64748b; color: white; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.loading-text { color: var(--text-light); font-size: 16px; }
