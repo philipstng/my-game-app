@@ -706,4 +706,160 @@ async function simulateGames(count = 100) {
 
         if (isBlackjack(gameState.playerHand)) {
             const dealerValue = getHandValue([gameState.dealerHand[0], gameState.dealerHand[1]]);
-            if (isBlackjack
+            if (isBlackjack(gameState.dealerHand)) {
+                gameState.balance += gameState.wager;
+                gameState.pushes++;
+                gameState.gamesPlayed++;
+            } else {
+                gameState.balance += Math.floor(gameState.wager * 2.5);
+                gameState.wins++;
+                gameState.gamesPlayed++;
+            }
+            continue;
+        }
+
+        while (gameState.gamePhase === 'player-turn' && !isBust(gameState.playerHand)) {
+            const dealerUpcard = getCardValue(gameState.dealerHand[0]);
+            const playerValue = getHandValue(gameState.playerHand);
+            const hasAce = gameState.playerHand.some(c => c.value === 'A');
+            const aceCount = gameState.playerHand.filter(c => c.value === 'A').length;
+            const minValue = playerValue - (aceCount * 10);
+            const isSoft = hasAce && minValue + 10 === playerValue;
+            const isPair = gameState.playerHand.length === 2 &&
+                          getCardValue(gameState.playerHand[0]) === getCardValue(gameState.playerHand[1]);
+            const pairValue = isPair ? getCardValue(gameState.playerHand[0]) : 0;
+
+            const { action } = getBasicStrategyRecommendation(
+                playerValue, dealerUpcard, isSoft, isPair, pairValue, gameState.playerHand.length === 2
+            );
+
+            if (action === 'Hit') {
+                gameState.playerHand.push(drawCard());
+            } else if (action === 'Stand') {
+                gameState.gamePhase = 'dealer-turn';
+                break;
+            } else if (action === 'Double Down' && gameState.balance >= gameState.wager) {
+                gameState.balance -= gameState.wager;
+                gameState.wager *= 2;
+                gameState.playerHand.push(drawCard());
+                gameState.gamePhase = 'dealer-turn';
+                break;
+            } else if (action === 'Split' && gameState.playerHand.length === 2 &&
+                       getCardValue(gameState.playerHand[0]) === getCardValue(gameState.playerHand[1]) &&
+                       gameState.balance >= gameState.wager) {
+                const firstCard = gameState.playerHand[0];
+                gameState.balance -= gameState.wager;
+                gameState.wager *= 2;
+                gameState.playerHand = [firstCard, drawCard()];
+                gameState.gamePhase = 'dealer-turn';
+                break;
+            } else {
+                gameState.playerHand.push(drawCard());
+            }
+        }
+
+        if (gameState.gamePhase === 'dealer-turn') {
+            while (getHandValue(gameState.dealerHand) < 17 ||
+                  (getHandValue(gameState.dealerHand) === 17 && isSoft17(gameState.dealerHand))) {
+                gameState.dealerHand.push(drawCard());
+            }
+        }
+
+        const playerValue = getHandValue(gameState.playerHand);
+        const dealerValue = getHandValue(gameState.dealerHand);
+
+        if (isBust(gameState.playerHand)) {
+            gameState.losses++;
+            gameState.gamesPlayed++;
+        } else if (isBust(gameState.dealerHand)) {
+            gameState.balance += gameState.wager * 2;
+            gameState.wins++;
+            gameState.gamesPlayed++;
+        } else if (playerValue > dealerValue) {
+            gameState.balance += gameState.wager * 2;
+            gameState.wins++;
+            gameState.gamesPlayed++;
+        } else if (playerValue < dealerValue) {
+            gameState.losses++;
+            gameState.gamesPlayed++;
+        } else {
+            gameState.balance += gameState.wager;
+            gameState.pushes++;
+            gameState.gamesPlayed++;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    gameState.wager = originalWager;
+    gameState.gamePhase = originalPhase;
+
+    updateBalance();
+    updateWager();
+    updateStats();
+    updateUIState();
+    renderHand([], elements.dealerHand);
+    renderHand([], elements.playerHand);
+
+    elements.loadingOverlay.classList.remove('show');
+    elements.simulateBtn.disabled = false;
+
+    const profit = gameState.balance - originalBalance;
+    const winRate = ((gameState.wins + gameState.pushes * 0.5) / count * 100).toFixed(2);
+    elements.resultText.textContent = `Simulation Complete`;
+    elements.resultText.className = profit >= 0 ? 'result-win' : 'result-lose';
+    elements.resultAmount.textContent = `+$${profit} | Win Rate: ${winRate}%`;
+    elements.resultMessage.classList.add('show');
+
+    setTimeout(() => {
+        elements.resultMessage.classList.remove('show');
+    }, 3000);
+}
+
+// ==================== EVENT LISTENERS ====================
+function initEventListeners() {
+    // Chip buttons for wagering
+    const chipButtons = document.querySelectorAll('.wager-controls .chip');
+    chipButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = parseInt(btn.dataset.value) || parseInt(btn.textContent);
+            addToWager(value);
+        });
+    });
+
+    // Action buttons
+    elements.hitBtn.addEventListener('click', playerHit);
+    elements.standBtn.addEventListener('click', playerStand);
+    elements.doubleBtn.addEventListener('click', playerDoubleDown);
+    elements.splitBtn.addEventListener('click', playerSplit);
+
+    // Deal button - starts the game when wager is placed
+    elements.dealBtn.addEventListener('click', () => {
+        if (gameState.gamePhase === 'betting' && gameState.wager > 0) {
+            startGame();
+        } else if (gameState.gamePhase === 'game-over') {
+            resetGame();
+        }
+    });
+
+    // Clear wager button
+    elements.clearWagerBtn.addEventListener('click', clearWager);
+
+    // Simulate button
+    elements.simulateBtn.addEventListener('click', () => {
+        simulateGames(100);
+    });
+}
+
+// ==================== INITIALIZATION ====================
+function init() {
+    updateBalance();
+    updateWager();
+    updateUIState();
+    updateStats();
+    updateRecommendation();
+    initEventListeners();
+}
+
+// Start the game when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
