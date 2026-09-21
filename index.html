@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Enhanced Blackjack Casino</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Blackjack 21</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,19 +22,242 @@
             }
         }
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-1 bg-slate-950 text-slate-100 font-sans select-none overflow-hidden touch-action-manipulation" style="height: 100vh; width: 100vw;">
 
-        body {
-            background-color: #0d1117;
-            color: #f0f6fc;
-            font-family: 'Inter', sans-serif;
-            user-select: none;
-            overflow: hidden;
-        }
+    <!-- Header - Compact for mobile -->
+    <header class="w-full flex justify-between items-center bg-slate-900 border border-slate-800 rounded-lg p-1.5 mb-1 shadow-lg">
+        <div class="flex items-center space-x-1">
+            <span class="text-lg">🎰</span>
+            <h1 class="text-base font-extrabold tracking-wide text-amber-400">Blackjack</h1>
+        </div>
+        <button onclick="toggleSound()" id="soundToggleBtn" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs px-2 py-1 rounded border border-slate-700 font-medium transition">
+            🔊 ON
+        </button>
+    </header>
 
-        .felt-table {
-            background: radial-gradient(circle, #0e6b40 0%, #063d23 85%, #021f11 100%);
+    <!-- Main Game Table - Optimized for Galaxy S26 portrait -->
+    <main class="w-full felt-table rounded-2xl p-2 flex flex-col justify-between min-h-[50vh] max-h-[55vh] relative overflow-hidden flex-1 mb-1">
+        <!-- Table Rules -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center opacity-10 pointer-events-none select-none">
+            <h2 class="text-xl font-black text-white tracking-widest text-center">BLACKJACK PAYS 2 TO 1</h2>
+            <p class="text-sm font-bold text-white mt-0.5">Dealer stands on 17</p>
+        </div>
+
+        <!-- Dealer Section -->
+        <div class="relative z-10 flex flex-col items-center pt-1">
+            <div class="flex items-center space-x-1 mb-1">
+                <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Dealer</span>
+                <span id="dealerScore" class="bg-black/50 text-amber-300 text-xs font-bold px-1.5 py-0.25 rounded-full border border-amber-500/30">0</span>
+            </div>
+            <div id="dealerCards" class="flex justify-center items-center -space-x-2 min-h-[70px]">
+                <!-- Cards render dynamically -->
+            </div>
+        </div>
+
+        <!-- Game Message -->
+        <div id="gameMessageContainer" class="relative z-20 my-1 text-center transition-all duration-300 min-h-[32px] flex items-center justify-center">
+            <div id="gameMessage" class="hidden text-sm font-black px-3 py-1 rounded-full shadow-2xl backdrop-blur-md border border-white/20 transform transition scale-95">
+                <!-- Status text -->
+            </div>
+        </div>
+
+        <!-- Player Section -->
+        <div class="relative z-10 flex flex-col items-center pb-1">
+            <div id="playerCards" class="flex justify-center items-center -space-x-2 min-h-[70px] mb-1">
+                <!-- Cards render dynamically -->
+            </div>
+            <div class="flex items-center space-x-1">
+                <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Your Hand</span>
+                <span id="playerScore" class="bg-black/50 text-amber-300 text-xs font-bold px-1.5 py-0.25 rounded-full border border-amber-500/30">0</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Dashboard -->
+    <footer class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 shadow-xl">
+        <div class="grid grid-cols-1 gap-1.5">
+
+            <!-- Recommendation and Rationale -->
+            <div class="flex flex-col gap-1">
+                <div class="recommendation-box">
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">RECOMMENDATION</div>
+                    <div id="recommendationText" class="text-sm font-bold text-amber-400 text-center">
+                        Place your bet
+                    </div>
+                </div>
+                <div class="recommendation-box">
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">RATIONALE</div>
+                    <div id="rationaleText" class="text-xs text-slate-200 text-center">
+                        Wait for dealer's upcard
+                    </div>
+                </div>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="stats-box">
+                <div class="text-xs text-slate-400 font-medium mb-0.5">WIN RATE</div>
+                <div id="winRateDisplay" class="text-sm font-bold text-emerald-400 text-center">
+                    0.00% (0-0-0)
+                </div>
+            </div>
+
+            <!-- Bankroll & Bet -->
+            <div class="flex justify-around items-center space-x-1 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">BANKROLL</div>
+                    <div id="balanceDisplay" class="text-base font-black text-emerald-400">$1,000</div>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">BET</div>
+                    <div id="betDisplay" class="text-base font-black text-amber-400">$0</div>
+                </div>
+            </div>
+
+            <!-- Betting Chips -->
+            <div id="bettingControls" class="flex justify-center items-center space-x-1">
+                <button onclick="addBet(5)" class="chip chip-5">$5</button>
+                <button onclick="addBet(25)" class="chip chip-25">$25</button>
+                <button onclick="addBet(100)" class="chip chip-100">$100</button>
+                <button onclick="addBet(500)" class="chip chip-500">$500</button>
+                <button onclick="clearBet()" class="bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-xs font-bold px-2 py-1.5 rounded border border-rose-700/50 transition ml-1">
+                    CLEAR
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div id="actionControls" class="flex flex-wrap justify-center gap-1 hidden">
+                <button id="btnHit" onclick="hit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-emerald-400/30">
+                    HIT
+                </button>
+                <button id="btnStand" onclick="stand()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-amber-400/30">
+                    STAND
+                </button>
+                <button id="btnDouble" onclick="doubleDown()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-purple-400/30">
+                    DOUBLE
+                </button>
+                <button id="btnSurrender" onclick="surrender()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs px-2 py-2 rounded-lg shadow-lg active:scale-95 border border-slate-500/30">
+                    SURRENDER
+                </button>
+            </div>
+
+            <!-- Deal Button -->
+            <div id="dealControl" class="flex justify-center">
+                <button id="btnDeal" onclick="startDeal()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm px-6 py-2.5 rounded-lg shadow-lg active:scale-95 border border-amber-300">
+                    DEAL
+                </button>
+            </div>
+
+            <!-- Simulate Button -->
+            <div class="flex justify-center">
+                <button id="btnSimulate" onclick="simulateGames()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm px-6 py-2.5 rounded-lg shadow-lg active:scale-95 border border-indigo-400/30">
+                    SIMULATE 100
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>            <div id="playerCards" class="flex justify-center items-center -space-x-2 min-h-[70px] mb-1">
+                <!-- Cards render dynamically -->
+            </div>
+            <div class="flex items-center space-x-1">
+                <span class="text-xs font-bold tracking-wider text-emerald-200 uppercase">Your Hand</span>
+                <span id="playerScore" class="bg-black/50 text-amber-300 text-xs font-bold px-1.5 py-0.25 rounded-full border border-amber-500/30">0</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Dashboard -->
+    <footer class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 shadow-xl">
+        <div class="grid grid-cols-1 gap-1.5">
+
+            <!-- Recommendation and Rationale -->
+            <div class="flex flex-col gap-1">
+                <div class="recommendation-box">
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">RECOMMENDATION</div>
+                    <div id="recommendationText" class="text-sm font-bold text-amber-400 text-center">
+                        Place your bet
+                    </div>
+                </div>
+                <div class="recommendation-box">
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">RATIONALE</div>
+                    <div id="rationaleText" class="text-xs text-slate-200 text-center">
+                        Wait for dealer's upcard
+                    </div>
+                </div>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="stats-box">
+                <div class="text-xs text-slate-400 font-medium mb-0.5">WIN RATE</div>
+                <div id="winRateDisplay" class="text-sm font-bold text-emerald-400 text-center">
+                    0.00% (0-0-0)
+                </div>
+            </div>
+
+            <!-- Bankroll & Bet -->
+            <div class="flex justify-around items-center space-x-1 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">BANKROLL</div>
+                    <div id="balanceDisplay" class="text-base font-black text-emerald-400">$1,000</div>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div>
+                    <div class="text-xs text-slate-400 font-medium">BET</div>
+                    <div id="betDisplay" class="text-base font-black text-amber-400">$0</div>
+                </div>
+            </div>
+
+            <!-- Betting Chips -->
+            <div id="bettingControls" class="flex justify-center items-center space-x-1">
+                <button onclick="addBet(5)" class="chip chip-5">$5</button>
+                <button onclick="addBet(25)" class="chip chip-25">$25</button>
+                <button onclick="addBet(100)" class="chip chip-100">$100</button>
+                <button onclick="addBet(500)" class="chip chip-500">$500</button>
+                <button onclick="clearBet()" class="bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-xs font-bold px-2 py-1.5 rounded border border-rose-700/50 transition ml-1">
+                    CLEAR
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div id="actionControls" class="flex flex-wrap justify-center gap-1 hidden">
+                <button id="btnHit" onclick="hit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-emerald-400/30">
+                    HIT
+                </button>
+                <button id="btnStand" onclick="stand()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-amber-400/30">
+                    STAND
+                </button>
+                <button id="btnDouble" onclick="doubleDown()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-lg active:scale-95 border border-purple-400/30">
+                    DOUBLE
+                </button>
+                <button id="btnSurrender" onclick="surrender()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs px-2 py-2 rounded-lg shadow-lg active:scale-95 border border-slate-500/30">
+                    SURRENDER
+                </button>
+            </div>
+
+            <!-- Deal Button -->
+            <div id="dealControl" class="flex justify-center">
+                <button id="btnDeal" onclick="startDeal()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm px-6 py-2.5 rounded-lg shadow-lg active:scale-95 border border-amber-300">
+                    DEAL
+                </button>
+            </div>
+
+            <!-- Simulate Button -->
+            <div class="flex justify-center">
+                <button id="btnSimulate" onclick="simulateGames()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm px-6 py-2.5 rounded-lg shadow-lg active:scale-95 border border-indigo-400/30">
+                    SIMULATE 100
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>            background: radial-gradient(circle, #0e6b40 0%, #063d23 85%, #021f11 100%);
             box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7), 0 20px 50px rgba(0,0,0,0.8);
             border: 12px solid #2d1800;
         }
