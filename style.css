@@ -42,7 +42,6 @@ body {
     background: linear-gradient(180deg, #0a5c36 0%, #084c2e 100%);
 }
 
-/* Header with balance and controls */
 .header {
     width: 100%;
     display: flex;
@@ -153,7 +152,6 @@ button:disabled {
     color: #999;
 }
 
-/* Game area */
 .game-area {
     width: 100%;
     max-width: 600px;
@@ -165,7 +163,6 @@ button:disabled {
     position: relative;
 }
 
-/* Dealer and Player areas */
 .player-area {
     width: 100%;
     display: flex;
@@ -262,7 +259,6 @@ button:disabled {
     font-size: 32px;
 }
 
-/* Action buttons */
 .actions {
     display: flex;
     gap: 8px;
@@ -280,7 +276,6 @@ button:disabled {
     font-size: 14px;
 }
 
-/* Game state info */
 .game-info {
     font-size: 14px;
     color: #d4af37;
@@ -289,7 +284,6 @@ button:disabled {
     text-align: center;
 }
 
-/* Recommendation boxes */
 .recommendation-container {
     position: absolute;
     right: 12px;
@@ -345,7 +339,6 @@ button:disabled {
     line-height: 1.3;
 }
 
-/* Stats box */
 .stats-container {
     position: absolute;
     left: 12px;
@@ -378,7 +371,6 @@ button:disabled {
     color: var(--text-light);
 }
 
-/* Result message */
 .result-message {
     position: fixed;
     top: 50%;
@@ -413,7 +405,6 @@ button:disabled {
 .result-push { color: var(--chip-gold); }
 .result-amount { font-size: 14px; opacity: 0.8; }
 
-/* Simulate button */
 .simulate-section {
     width: 100%;
     display: flex;
@@ -432,7 +423,6 @@ button:disabled {
     background: linear-gradient(145deg, #3498db, #2980b9);
 }
 
-/* Responsive adjustments */
 @media (min-width: 768px) {
     .container { padding: 16px 0; }
     .header { padding: 10px 20px; }
@@ -464,7 +454,6 @@ button:disabled {
     }
 }
 
-/* Loading overlay for simulation */
 .loading-overlay {
     position: fixed;
     inset: 0;
