@@ -482,6 +482,27 @@
             opacity: 0.8;
         }
 
+        /* New Game button */
+        .new-game-section {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 12px 0;
+        }
+
+        .new-game-btn {
+            padding: 12px 32px;
+            font-size: 16px;
+            background: linear-gradient(145deg, #27ae60, #1e8449);
+            color: #ffffff;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .new-game-btn:hover:not(:disabled) {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            transform: scale(1.05);
+        }
+
         /* Simulate button */
         .simulate-section {
             width: 100%;
@@ -643,6 +664,10 @@
                 <button class="action-btn" id="split-btn" disabled>Split</button>
             </div>
 
+            <div class="new-game-section" id="new-game-section" style="display:none;">
+                <button class="new-game-btn" id="new-game-btn">New Game</button>
+            </div>
+
             <div class="simulate-section">
                 <button class="simulate-btn" id="simulate-btn">Simulate 100 Games</button>
             </div>
@@ -718,6 +743,8 @@
             dealBtn: document.getElementById('deal-btn'),
             clearWagerBtn: document.getElementById('clear-wager'),
             simulateBtn: document.getElementById('simulate-btn'),
+            newGameBtn: document.getElementById('new-game-btn'),
+            newGameSection: document.getElementById('new-game-section'),
             recommendation: document.getElementById('recommendation'),
             rationale: document.getElementById('rationale'),
             winRate: document.getElementById('win-rate'),
@@ -930,6 +957,7 @@
 
         // ==================== GAME LOGIC ====================
         function startGame() {
+            elements.newGameSection.style.display = 'none';
             gameState.deck = createDeck();
             gameState.dealerHand = [];
             gameState.playerHand = [];
@@ -1110,6 +1138,7 @@
             gameState.gamePhase = 'game-over';
             updateUIState();
             updateDealerDisplay();
+            elements.newGameSection.style.display = 'flex';
 
             let winAmount = 0;
             let message = '';
@@ -1178,6 +1207,7 @@
             gameState.playerHands = [];
             gameState.currentHandIndex = 0;
 
+            elements.newGameSection.style.display = 'none';
             updateWager();
             updateUIState();
             renderHand([], elements.dealerHand);
@@ -1185,7 +1215,7 @@
             elements.dealerSum.textContent = 'Sum: ?';
             elements.playerSum.textContent = 'Sum: 0';
             elements.recommendation.textContent = '-';
-            elements.rationale.textContent = 'Place your bet and start the game';
+            elements.rationale.textContent = 'Place your bet and click Deal';
         }
 
         // ==================== RECOMMENDATION ALGORITHM ====================
@@ -1660,18 +1690,15 @@
                 }
             });
 
+            // New Game button - resets table so a fresh game can be played
+            elements.newGameBtn.addEventListener('click', resetGame);
+
             // Clear wager button
             elements.clearWagerBtn.addEventListener('click', clearWager);
 
             // Simulate button
             elements.simulateBtn.addEventListener('click', () => {
                 simulateGames(100);
-            });
-            // Deal button also resets after game over
-            elements.dealBtn.addEventListener('click', () => {
-                if (gameState.gamePhase === 'game-over') {
-                    resetGame();
-                }
             });
         }
 
