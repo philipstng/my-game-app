@@ -32,6 +32,8 @@ const elements = {
     dealBtn: document.getElementById('deal-btn'),
     clearWagerBtn: document.getElementById('clear-wager'),
     simulateBtn: document.getElementById('simulate-btn'),
+    newGameBtn: document.getElementById('new-game-btn'),
+    newGameSection: document.getElementById('new-game-section'),
     recommendation: document.getElementById('recommendation'),
     rationale: document.getElementById('rationale'),
     winRate: document.getElementById('win-rate'),
@@ -230,6 +232,7 @@ function updateUIState() {
 
 // ==================== GAME LOGIC ====================
 function startGame() {
+    elements.newGameSection.style.display = 'none';
     gameState.deck = createDeck();
     gameState.dealerHand = [];
     gameState.playerHand = [];
@@ -387,6 +390,7 @@ function endGame(result, isBlackjack = false) {
     gameState.gamePhase = 'game-over';
     updateUIState();
     updateDealerDisplay();
+    elements.newGameSection.style.display = 'flex';
 
     let winAmount = 0;
     let message = '';
@@ -444,12 +448,14 @@ function endGame(result, isBlackjack = false) {
 
 function resetGame() {
     gameState.gamePhase = 'betting';
+    gameState.wager = 0;
     gameState.playerHand = [];
     gameState.dealerHand = [];
     gameState.isSplit = false;
     gameState.playerHands = [];
     gameState.currentHandIndex = 0;
 
+    elements.newGameSection.style.display = 'none';
     updateWager();
     updateUIState();
     renderHand([], elements.dealerHand);
@@ -836,6 +842,9 @@ function initEventListeners() {
             resetGame();
         }
     });
+
+    // New Game button - resets table so a fresh game can be played
+    elements.newGameBtn.addEventListener('click', resetGame);
 
     // Clear wager button
     elements.clearWagerBtn.addEventListener('click', clearWager);
