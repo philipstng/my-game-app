@@ -675,10 +675,6 @@ async function simulateGames(count = 100) {
     const originalBalance = gameState.balance;
     const originalWager = gameState.wager;
     const originalPhase = gameState.gamePhase;
-    const originalGames = gameState.gamesPlayed;
-    const originalWins = gameState.wins;
-    const originalLosses = gameState.losses;
-    const originalPushes = gameState.pushes;
 
     let currentGame = 0;
 
@@ -705,7 +701,6 @@ async function simulateGames(count = 100) {
         gameState.playerHand.push(drawCard());
 
         if (isBlackjack(gameState.playerHand)) {
-            const dealerValue = getHandValue([gameState.dealerHand[0], gameState.dealerHand[1]]);
             if (isBlackjack(gameState.dealerHand)) {
                 gameState.balance += gameState.wager;
                 gameState.pushes++;
